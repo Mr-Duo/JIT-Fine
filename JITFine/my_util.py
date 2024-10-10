@@ -67,21 +67,29 @@ def convert_examples_to_features(item, cls_token='[CLS]', sep_token='[SEP]', seq
     removed_tokens = []
     msg_tokens = tokenizer.tokenize(msg)
     msg_tokens = msg_tokens[:min(args.max_msg_length, len(msg_tokens))]
-    # for file_codes in files:
-    file_codes = files
-    if no_abstraction:
-        added_codes = [' '.join(line.split()) for line in file_codes['added_code']]
-    else:
-        added_codes = [preprocess_code_line(line, False) for line in file_codes['added_code']]
-    codes = '[ADD]'.join([line for line in added_codes if len(line)])
-    added_tokens.extend(tokenizer.tokenize(codes))
-    if no_abstraction:
-        removed_codes = [' '.join(line.split()) for line in file_codes['removed_code']]
-    else:
-        removed_codes = [preprocess_code_line(line, False) for line in file_codes['removed_code']]
-    codes = '[DEL]'.join([line for line in removed_codes if len(line)])
-    removed_tokens.extend(tokenizer.tokenize(codes))
+    # # for file_codes in files:
+    # file_codes = files
+    # if no_abstraction:
+    #     added_codes = [' '.join(line.split()) for line in file_codes['added_code']]
+    # else:
+    #     added_codes = [preprocess_code_line(line, False) for line in file_codes['added_code']]
+    # codes = '[ADD]'.join([line for line in added_codes if len(line)])
+    # added_tokens.extend(tokenizer.tokenize(codes))
+    # if no_abstraction:
+    #     removed_codes = [' '.join(line.split()) for line in file_codes['removed_code']]
+    # else:
+    #     removed_codes = [preprocess_code_line(line, False) for line in file_codes['removed_code']]
+    # codes = '[DEL]'.join([line for line in removed_codes if len(line)])
+    # removed_tokens.extend(tokenizer.tokenize(codes))
 
+    # Use regular expression to extract both parts
+    match = re.match(r"added: (.*) removed: (.*)", files)
+
+    if match:
+        added_part = match.group(1)
+        removed_part = match.group(2)
+    added_tokens.extend(tokenizer.tokenize(added_part))   
+    removed_tokens.extend(tokenizer.tokenize(removed_part))
     input_tokens = msg_tokens + ['[ADD]'] + added_tokens + ['[DEL]'] + removed_tokens
 
     input_tokens = input_tokens[:512 - 2]
@@ -136,14 +144,14 @@ class TextDataset(Dataset):
         features_data = pd.read_json(features_filename, lines=True)
         features_data = convert_dtype_dataframe(features_data, manual_features_columns)
 
-        features_data = features_data[['commit_hash'] + manual_features_columns]
+        features_data = features_data[['commit_id'] + manual_features_columns]
 
         manual_features = preprocessing.scale(features_data[manual_features_columns].to_numpy())
         # manual_features = features_data[manual_features_columns].to_numpy()
         features_data[manual_features_columns] = manual_features
 
         for commit_id, label, msg, files in zip(commit_ids, labels, msgs, codes):
-            manual_features = features_data[features_data['commit_hash'] == commit_id][
+            manual_features = features_data[features_data['commit_id'] == commit_id][
                 manual_features_columns].to_numpy().squeeze()
             data.append((commit_id, files, msg, label, tokenizer, args, manual_features))
         # only use 20% valid data to keep best model
