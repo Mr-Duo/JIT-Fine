@@ -160,7 +160,7 @@ class TextDataset(Dataset):
             random.seed(args.do_seed)
             random.shuffle(data)
             random.seed(args.seed)
-        self.examples = [convert_examples_to_features(x, no_abstraction=args.no_abstraction) for x in
+        self.examples = [convert_examples_to_features(x, no_abstraction=False) for x in
                          tqdm(data, total=len(data))]
 
     def __len__(self):
