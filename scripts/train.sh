@@ -1,3 +1,5 @@
+#!/bin/bash
+
 python -m JITFine.concat.run \
     --output_dir=model/jitfine/saved_models_concat/checkpoints \
     --config_name=microsoft/codebert-base \
