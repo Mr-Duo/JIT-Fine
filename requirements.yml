@@ -142,7 +142,6 @@ dependencies:
     - huggingface-hub==0.4.0
     - imageio==2.14.1
     - imbalanced-learn==0.8.0
-    - install
     - lizard==1.17.9
     - networkx==2.6.3
     - numpy==1.22.1
