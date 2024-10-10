@@ -8,7 +8,7 @@ echo "Nested loop processing:"
 for i in "${sampling[@]}"; do
     for j in "${setup[@]}"; do    
         echo "Train $k $j with $i"
-        mkdir $j/$i/dg_cache/save/FFmpeg/jitfine/checkpoints
+        mkdir -p $j/$i/dg_cache/save/FFmpeg/jitfine/checkpoints
 
         python -m JITFine.concat.run \
             --output_dir=$j/$i/dg_cache/save/FFmpeg/jitfine/checkpoints \
