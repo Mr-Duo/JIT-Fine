@@ -459,18 +459,10 @@ def parse_args():
     parser.add_argument("--buggy_line_filepath", type=str,
                         help="complete buggy line-level  data file for RQ3")
     
-    parser.add_argument('--feature_size', type=int, default=14,
-                        help="Number of features")
-    parser.add_argument('--num_labels', type=int, default=2,
-                        help="Number of labels")
     parser.add_argument('--head_dropout_prob', type=float, default=0.1,
                         help="Number of labels")
     parser.add_argument('--hidden_dropout_prob', type=float, default=0.1,
                         help="Number of labels")
-    parser.add_argument('--max_msg_length', type=int, default=64,
-                        help="Number of labels")
-    parser.add_argument('--patience', type=int, default=5,
-                        help='patience for early stop')
 
     args = parser.parse_args()
     return args
