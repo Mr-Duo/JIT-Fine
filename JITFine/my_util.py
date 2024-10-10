@@ -14,6 +14,7 @@ from sklearn import preprocessing
 from sklearn.preprocessing import MinMaxScaler
 import logging
 import os
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -121,9 +122,18 @@ class TextDataset(Dataset):
         changes_filename, features_filename = file_path
 
         data = []
-        ddata = pd.read_pickle(changes_filename)
-
-        features_data = pd.read_pickle(features_filename)
+        # ddata = pd.read_pickle(changes_filename)
+        commit_ids, labels, msgs, codes = [], [], [], []
+        with open(changes_filename, "r") as f:
+            for line in f:
+                data_point = json.loads(line)
+                commit_ids.append(data_point["commit_id"]) 
+                labels.append(data_point["label"]) 
+                msgs.append(data_point["messages"]) 
+                codes.append(data_point["code_change"])
+        
+        # features_data = pd.read_pickle(features_filename)
+        features_data = pd.read_json(features_filename, lines=True)
         features_data = convert_dtype_dataframe(features_data, manual_features_columns)
 
         features_data = features_data[['commit_hash'] + manual_features_columns]
@@ -132,7 +142,6 @@ class TextDataset(Dataset):
         # manual_features = features_data[manual_features_columns].to_numpy()
         features_data[manual_features_columns] = manual_features
 
-        commit_ids, labels, msgs, codes = ddata
         for commit_id, label, msg, files in zip(commit_ids, labels, msgs, codes):
             manual_features = features_data[features_data['commit_hash'] == commit_id][
                 manual_features_columns].to_numpy().squeeze()
