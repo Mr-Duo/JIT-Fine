@@ -463,7 +463,8 @@ def parse_args():
                         help="Number of labels")
     parser.add_argument('--hidden_dropout_prob', type=float, default=0.1,
                         help="Number of labels")
-
+    parser.add_argument('--no_abstraction', type=bool, default=False,
+                        help="Number of labels")
     args = parser.parse_args()
     return args
 
