@@ -159,11 +159,12 @@ def evaluate(args, model, tokenizer, eval_when_training=False):
     if args.no_abstraction:
         cache_dataset = cache_dataset.split('.pkl')[0] + '_raw.pkl'
     logger.info("Cache Dataset file at %s ", cache_dataset)
-    if os.path.exists(cache_dataset):
-        eval_dataset = pickle.load(open(cache_dataset, 'rb'))
-    else:
-        eval_dataset = TextDataset(tokenizer, args, file_path=args.eval_data_file, mode='valid')
-        pickle.dump(eval_dataset, open(cache_dataset, 'wb'))
+    eval_dataset = TextDataset(tokenizer, args, file_path=args.eval_data_file, mode='valid')
+    # if os.path.exists(cache_dataset):
+    #     eval_dataset = pickle.load(open(cache_dataset, 'rb'))
+    # else:
+    #     eval_dataset = TextDataset(tokenizer, args, file_path=args.eval_data_file, mode='valid')
+    #     pickle.dump(eval_dataset, open(cache_dataset, 'wb'))
     eval_sampler = SequentialSampler(eval_dataset)
     eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size, num_workers=4)
 
@@ -223,12 +224,13 @@ def test(args, model, tokenizer, best_threshold=0.5):
     cache_dataset = os.path.dirname(args.test_data_file[0]) + f'/test_set_cache_msg{args.max_msg_length}.pkl'
     if args.no_abstraction:
         cache_dataset = cache_dataset.split('.pkl')[0] + '_raw.pkl'
-    logger.info("Cache Dataset file at %s ", cache_dataset)
-    if os.path.exists(cache_dataset):
-        eval_dataset = pickle.load(open(cache_dataset, 'rb'))
-    else:
-        eval_dataset = TextDataset(tokenizer, args, file_path=args.test_data_file, mode='test')
-        pickle.dump(eval_dataset, open(cache_dataset, 'wb'))
+    eval_dataset = TextDataset(tokenizer, args, file_path=args.test_data_file, mode='test')
+    # logger.info("Cache Dataset file at %s ", cache_dataset)
+    # if os.path.exists(cache_dataset):
+    #     eval_dataset = pickle.load(open(cache_dataset, 'rb'))
+    # else:
+        
+    #     pickle.dump(eval_dataset, open(cache_dataset, 'wb'))
     eval_sampler = SequentialSampler(eval_dataset)
     eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size, num_workers=4)
 
