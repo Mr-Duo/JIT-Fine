@@ -12,6 +12,7 @@ for i in "${sampling[@]}"; do
 
         python -m JITFine.concat.run \
             --output_dir=$j/$i/dg_cache/save/FFmpeg/jitfine/checkpoints \
+            --cache_dir cache_ros \
             --config_name=microsoft/codebert-base \
             --model_name_or_path=microsoft/codebert-base \
             --tokenizer_name=microsoft/codebert-base \
@@ -30,11 +31,11 @@ for i in "${sampling[@]}"; do
             --feature_size 14 \
             --patience 10 \
             --seed 42 2>&1| tee $j/$i/dg_cache/save/FFmpeg/jitfine/train.log \
-            --cache_dir cache_ros
 
 
         python -m JITFine.concat.run \
             --output_dir=$j/$i/dg_cache/save/FFmpeg/jitfine/checkpoints \
+            --cache_dir cache_ros \
             --config_name=microsoft/codebert-base \
             --model_name_or_path=microsoft/codebert-base \
             --tokenizer_name=microsoft/codebert-base \
@@ -52,7 +53,6 @@ for i in "${sampling[@]}"; do
             --evaluate_during_training \
             --only_adds \
             --buggy_line_filepath=$j/$i/dg_cache/save/FFmpeg/jitfine/changes_complete_buggy_line_level.pkl \
-            --seed 42 2>&1 | tee $j/$i/dg_cache/save/FFmpeg/jitfine/test.log \
-            --cache_dir cache_ros
+            --seed 42 2>&1 | tee $j/$i/dg_cache/save/FFmpeg/jitfine/test.log 
     done
 done
