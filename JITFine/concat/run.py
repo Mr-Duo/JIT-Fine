@@ -16,6 +16,10 @@ from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampl
 from torch.utils.data.distributed import DistributedSampler
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer, RobertaModel)
+from sklearn.metrics import (
+    f1_score, precision_score, recall_score
+)
+
 from tqdm import tqdm, trange
 import multiprocessing
 from JITFine.concat.model import Model
@@ -109,7 +113,7 @@ def train(args, train_dataset, model, tokenizer):
             global_step += 1
             if (step + 1) % args.save_steps == 0:
                 results = evaluate(args, model, tokenizer, eval_when_training=True)
-                checkpoint_prefix = f'epoch_{idx}_step_{step}'
+                checkpoint_prefix = f'checkpoint-last-epoch'
                 output_dir = os.path.join(args.output_dir, '{}'.format(checkpoint_prefix))
                 if not os.path.exists(output_dir):
                     os.makedirs(output_dir)
@@ -155,23 +159,17 @@ def train(args, train_dataset, model, tokenizer):
 
 def evaluate(args, model, tokenizer, eval_when_training=False):
     # build dataloader
-    cache_dataset = os.path.dirname(args.eval_data_file[0]) + f'/valid_set_cache_msg{args.max_msg_length}.pkl'
+    cache_dataset = args.cache_dir + f'/valid_set_cache_msg{args.max_msg_length}.pkl'
     if args.no_abstraction:
         cache_dataset = cache_dataset.split('.pkl')[0] + '_raw.pkl'
     logger.info("Cache Dataset file at %s ", cache_dataset)
-    # eval_dataset = TextDataset(tokenizer, args, file_path=args.eval_data_file, mode='valid')
     if os.path.exists(cache_dataset):
         with open(cache_dataset, 'rb') as f:
             eval_dataset = pickle.load(f)
     else:
-        eval_dataset = TextDataset(tokenizer, args, file_path=args.test_data_file, mode='test')    
+        eval_dataset = TextDataset(tokenizer, args, file_path=args.test_data_file, mode='valid')    
         with open(cache_dataset, 'wb') as f:
             pickle.dump(eval_dataset, f)
-    # if os.path.exists(cache_dataset):
-    #     eval_dataset = pickle.load(open(cache_dataset, 'rb'))
-    # else:
-    #     eval_dataset = TextDataset(tokenizer, args, file_path=args.eval_data_file, mode='valid')
-    #     pickle.dump(eval_dataset, open(cache_dataset, 'wb'))
     eval_sampler = SequentialSampler(eval_dataset)
     eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size, num_workers=4)
 
@@ -205,18 +203,15 @@ def evaluate(args, model, tokenizer, eval_when_training=False):
     best_threshold = 0.5
 
     y_preds = logits[:, -1] > best_threshold
-    from sklearn.metrics import recall_score
+
     recall = recall_score(y_trues, y_preds, average='binary')
-    from sklearn.metrics import precision_score
     precision = precision_score(y_trues, y_preds, average='binary')
-    from sklearn.metrics import f1_score
     f1 = f1_score(y_trues, y_preds, average='binary')
     result = {
         "eval_recall": float(recall),
         "eval_precision": float(precision),
         "eval_f1": float(f1),
         "eval_threshold": best_threshold,
-
     }
 
     logger.info("***** Eval results *****")
@@ -228,10 +223,9 @@ def evaluate(args, model, tokenizer, eval_when_training=False):
 
 def test(args, model, tokenizer, best_threshold=0.5):
     # build dataloader
-    cache_dataset = os.path.dirname(args.test_data_file[0]) + f'/test_set_cache_msg{args.max_msg_length}.pkl'
+    cache_dataset = args.cache_dir + f'/test_set_cache_msg{args.max_msg_length}.pkl'
     if args.no_abstraction:
         cache_dataset = cache_dataset.split('.pkl')[0] + '_raw.pkl'
-    # eval_dataset = TextDataset(tokenizer, args, file_path=args.test_data_file, mode='test')
     logger.info("Cache Dataset file at %s ", cache_dataset)
     if os.path.exists(cache_dataset):
         with open(cache_dataset, 'rb') as f:
@@ -275,11 +269,8 @@ def test(args, model, tokenizer, best_threshold=0.5):
     attns = np.concatenate(attns, 0)
 
     y_preds = logits[:, -1] > best_threshold
-    from sklearn.metrics import recall_score
     recall = recall_score(y_trues, y_preds, average='binary')
-    from sklearn.metrics import precision_score
     precision = precision_score(y_trues, y_preds, average='binary')
-    from sklearn.metrics import f1_score
     f1 = f1_score(y_trues, y_preds, average='binary')
 
     result = {
@@ -295,38 +286,38 @@ def test(args, model, tokenizer, best_threshold=0.5):
 
     result = []
 
-    cache_buggy_line = os.path.join(os.path.dirname(args.buggy_line_filepath),
-                                    'changes_complete_buggy_line_level_cache.pkl')
-    if os.path.exists(cache_buggy_line):
-        commit2codes, idx2label = pickle.load(open(cache_buggy_line, 'rb'))
-    else:
-        commit2codes, idx2label = commit_with_codes(args.buggy_line_filepath, tokenizer)
-        pickle.dump((commit2codes, idx2label), open(cache_buggy_line, 'wb'))
+    # cache_buggy_line = os.path.join(os.path.dirname(args.buggy_line_filepath),
+    #                                 'changes_complete_buggy_line_level_cache.pkl')
+    # if os.path.exists(cache_buggy_line):
+    #     commit2codes, idx2label = pickle.load(open(cache_buggy_line, 'rb'))
+    # else:
+    #     commit2codes, idx2label = commit_with_codes(args.buggy_line_filepath, tokenizer)
+    #     pickle.dump((commit2codes, idx2label), open(cache_buggy_line, 'wb'))
 
     IFA, top_20_percent_LOC_recall, effort_at_20_percent_LOC_recall, top_10_acc, top_5_acc = [], [], [], [], []
     for example, pred, prob, attn in zip(eval_dataset.examples, y_preds, logits[:, -1], attns):
         result.append([example.commit_id, prob, pred, example.label])
 
-        # calculate
-        if int(example.label) == 1 and int(pred) == 1 and '[ADD]' in example.input_tokens:
-            cur_codes = commit2codes[commit2codes['commit_id'] == example.commit_id]
-            cur_labels = idx2label[idx2label['commit_id'] == example.commit_id]
-            cur_IFA, cur_top_20_percent_LOC_recall, cur_effort_at_20_percent_LOC_recall, cur_top_10_acc, cur_top_5_acc = deal_with_attns(
-                example, attn,
-                pred, cur_codes,
-                cur_labels, args.only_adds)
-            IFA.append(cur_IFA)
-            top_20_percent_LOC_recall.append(cur_top_20_percent_LOC_recall)
-            effort_at_20_percent_LOC_recall.append(cur_effort_at_20_percent_LOC_recall)
-            top_10_acc.append(cur_top_10_acc)
-            top_5_acc.append(cur_top_5_acc)
+    #     # calculate
+    #     if int(example.label) == 1 and int(pred) == 1 and '[ADD]' in example.input_tokens:
+    #         cur_codes = commit2codes[commit2codes['commit_id'] == example.commit_id]
+    #         cur_labels = idx2label[idx2label['commit_id'] == example.commit_id]
+    #         cur_IFA, cur_top_20_percent_LOC_recall, cur_effort_at_20_percent_LOC_recall, cur_top_10_acc, cur_top_5_acc = deal_with_attns(
+    #             example, attn,
+    #             pred, cur_codes,
+    #             cur_labels, args.only_adds)
+    #         IFA.append(cur_IFA)
+    #         top_20_percent_LOC_recall.append(cur_top_20_percent_LOC_recall)
+    #         effort_at_20_percent_LOC_recall.append(cur_effort_at_20_percent_LOC_recall)
+    #         top_10_acc.append(cur_top_10_acc)
+    #         top_5_acc.append(cur_top_5_acc)
 
-    logger.info(
-        'Top-10-ACC: {:.4f},Top-5-ACC: {:.4f}, Recall20%Effort: {:.4f}, Effort@20%LOC: {:.4f}, IFA: {:.4f}'.format(
-            round(np.mean(top_10_acc), 4), round(np.mean(top_5_acc), 4),
-            round(np.mean(top_20_percent_LOC_recall), 4),
-            round(np.mean(effort_at_20_percent_LOC_recall), 4), round(np.mean(IFA), 4))
-    )
+    # logger.info(
+    #     'Top-10-ACC: {:.4f},Top-5-ACC: {:.4f}, Recall20%Effort: {:.4f}, Effort@20%LOC: {:.4f}, IFA: {:.4f}'.format(
+    #         round(np.mean(top_10_acc), 4), round(np.mean(top_5_acc), 4),
+    #         round(np.mean(top_20_percent_LOC_recall), 4),
+    #         round(np.mean(effort_at_20_percent_LOC_recall), 4), round(np.mean(IFA), 4))
+    # )
     RF_result = pd.DataFrame(result)
     RF_result.to_csv(os.path.join(args.output_dir, "predictions.csv"), sep='\t', index=None)
 
@@ -399,7 +390,8 @@ def parse_args():
                         help="The input training data file (a text file).")
     parser.add_argument("--output_dir", default=None, type=str, required=True,
                         help="The output directory where the model predictions and checkpoints will be written.")
-
+    parser.add_argument("--cache_dir", default="cache", type=str, required=True,
+                        help="The cache directory where the model cache dataset will be written.")
     ## Other parameters
     parser.add_argument("--eval_data_file", nargs=2, type=str,
                         help="An optional input evaluation data file to evaluate the perplexity on (a text file).")
@@ -559,4 +551,5 @@ def main(args):
 if __name__ == "__main__":
     cur_args = parse_args()
     create_path_if_not_exist(cur_args.output_dir)
+    create_path_if_not_exist(cur_args.cache_dir)
     main(cur_args)
