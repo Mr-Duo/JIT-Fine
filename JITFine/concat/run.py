@@ -390,7 +390,7 @@ def parse_args():
                         help="The input training data file (a text file).")
     parser.add_argument("--output_dir", default=None, type=str, required=True,
                         help="The output directory where the model predictions and checkpoints will be written.")
-    parser.add_argument("--cache_dir", default="cache", type=str, required=True,
+    parser.add_argument("--cache_dir", default="cache", type=str,
                         help="The cache directory where the model cache dataset will be written.")
     ## Other parameters
     parser.add_argument("--eval_data_file", nargs=2, type=str,
@@ -405,8 +405,6 @@ def parse_args():
                         help="Pretrained config name or path if not the same as model_name")
     parser.add_argument("--tokenizer_name", default="", type=str,
                         help="Pretrained tokenizer name or path if not the same as model_name")
-    parser.add_argument("--cache_dir", default="", type=str,
-                        help="Where do you want to store the pre-trained models downloaded from s3")
     parser.add_argument("--max_seq_length", default=128, type=int,
                         help="The maximum total input sequence length after tokenization. Sequences longer "
                              "than this will be truncated, sequences shorter will be padded.")
