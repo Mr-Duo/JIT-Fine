@@ -12,7 +12,7 @@ for i in "${sampling[@]}"; do
 
         python -m JITFine.concat.run \
             --output_dir=$j/$i/dg_cache/save/FFmpeg/jitfine/checkpoints \
-            --cache_dir cache_ros \
+            --cache_dir cache_rus \
             --config_name=microsoft/codebert-base \
             --model_name_or_path=microsoft/codebert-base \
             --tokenizer_name=microsoft/codebert-base \
@@ -35,7 +35,7 @@ for i in "${sampling[@]}"; do
 
         python -m JITFine.concat.run \
             --output_dir=$j/$i/dg_cache/save/FFmpeg/jitfine/checkpoints \
-            --cache_dir cache_ros \
+            --cache_dir cache_rus \
             --config_name=microsoft/codebert-base \
             --model_name_or_path=microsoft/codebert-base \
             --tokenizer_name=microsoft/codebert-base \
