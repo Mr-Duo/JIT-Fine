@@ -1,7 +1,7 @@
 #!/bin/bash
 
 setup=("SETUP1" "SETUP2" "SETUP3" "SETUP4" "SETUP5")
-sampling=("rus" "unsampling" "ros")
+sampling=("rus" "unsampling")
 
 # Nested loop
 echo "Nested loop processing:"
