@@ -29,7 +29,8 @@ for i in "${sampling[@]}"; do
             --evaluate_during_training \
             --feature_size 14 \
             --patience 10 \
-            --seed 42 2>&1| tee $j/$i/dg_cache/save/FFmpeg/jitfine/train.log
+            --seed 42 2>&1| tee $j/$i/dg_cache/save/FFmpeg/jitfine/train.log \
+            --cache_dir cache_ros
 
 
         python -m JITFine.concat.run \
@@ -51,6 +52,7 @@ for i in "${sampling[@]}"; do
             --evaluate_during_training \
             --only_adds \
             --buggy_line_filepath=$j/$i/dg_cache/save/FFmpeg/jitfine/changes_complete_buggy_line_level.pkl \
-            --seed 42 2>&1 | tee $j/$i/dg_cache/save/FFmpeg/jitfine/test.log
+            --seed 42 2>&1 | tee $j/$i/dg_cache/save/FFmpeg/jitfine/test.log \
+            --cache_dir cache_ros
     done
 done
