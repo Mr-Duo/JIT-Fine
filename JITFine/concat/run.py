@@ -153,7 +153,7 @@ def train(args, train_dataset, model, tokenizer):
                 else:
                     patience += 1
                     if patience > args.patience * 5:
-                        logger.info('patience greater than {}, early stop!'.format(args.patience))
+                        logger.info('patience greater than {}, early stop!'.format(5 * args.patience))
                         return
 
 
@@ -514,7 +514,7 @@ def main(args):
             model.load_state_dict(checkpoint['model_state_dict'], strict=False)
         train_dataset = TextDataset(tokenizer, args, file_path=args.train_data_file)
 
-        for idx, example in enumerate(train_dataset.examples[:5]):
+        for idx, example in enumerate(train_dataset.examples[:1]):
             logger.info("*** Example ***")
             logger.info("idx: {}".format(idx))
             logger.info("label: {}".format(example.label))

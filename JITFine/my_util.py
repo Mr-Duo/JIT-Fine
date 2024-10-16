@@ -152,7 +152,7 @@ class TextDataset(Dataset):
         features_data[manual_features_columns] = manual_features
 
         for commit_id, label, msg, files in zip(commit_ids, labels, msgs, codes):
-            manual_features = features_data[features_data['commit_id'] == commit_id][manual_features_columns].to_numpy().squeeze()
+            manual_features = features_data[features_data['commit_id'] == commit_id].head(1)[manual_features_columns].to_numpy().squeeze()
             data.append((commit_id, files, msg, label, tokenizer, args, manual_features))
         # only use 20% valid data to keep best model
         # convert example to input features
