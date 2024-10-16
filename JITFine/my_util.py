@@ -83,11 +83,12 @@ def convert_examples_to_features(item, cls_token='[CLS]', sep_token='[SEP]', seq
     # removed_tokens.extend(tokenizer.tokenize(codes))
 
     # Use regular expression to extract both parts
-    match = re.match(r"added: (.*) removed: (.*)", files)
+    match = re.match(r"added (.*) removed (.*)", files)
 
     if match:
         added_part = match.group(1).encode('utf-8', 'ignore').decode('utf-8')
         removed_part = match.group(2).encode('utf-8', 'ignore').decode('utf-8')
+        
     added_tokens.extend(tokenizer.tokenize(added_part))   
     removed_tokens.extend(tokenizer.tokenize(removed_part))
     input_tokens = msg_tokens + ['[ADD]'] + added_tokens + ['[DEL]'] + removed_tokens
