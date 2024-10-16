@@ -119,7 +119,7 @@ manual_features_columns = ['la', 'ld', 'nf', 'ns', 'nd', 'entropy', 'ndev',
 
 
 def convert_dtype_dataframe(df, feature_name):
-    df['fix'] = df['fix'].apply(lambda x: float(bool(x)))
+    # df['fix'] = df['fix'].apply(lambda x: float(bool(x)))
     df = df.astype({i: 'float32' for i in feature_name})
     return df
 
@@ -148,12 +148,11 @@ class TextDataset(Dataset):
         features_data = features_data[['commit_id'] + manual_features_columns]
 
         manual_features = preprocessing.scale(features_data[manual_features_columns].to_numpy())
-        # manual_features = features_data[manual_features_columns].to_numpy()
+        manual_features = features_data[manual_features_columns].to_numpy()
         features_data[manual_features_columns] = manual_features
 
         for commit_id, label, msg, files in zip(commit_ids, labels, msgs, codes):
-            manual_features = features_data[features_data['commit_id'] == commit_id][
-                manual_features_columns].to_numpy().squeeze()
+            manual_features = features_data[features_data['commit_id'] == commit_id][manual_features_columns].to_numpy().squeeze()
             data.append((commit_id, files, msg, label, tokenizer, args, manual_features))
         # only use 20% valid data to keep best model
         # convert example to input features
