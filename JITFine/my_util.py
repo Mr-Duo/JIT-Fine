@@ -148,7 +148,7 @@ class TextDataset(Dataset):
         features_data = features_data[['commit_id'] + manual_features_columns]
 
         manual_features = preprocessing.scale(features_data[manual_features_columns].to_numpy())
-        manual_features = features_data[manual_features_columns].to_numpy()
+        # manual_features = features_data[manual_features_columns].to_numpy()
         features_data[manual_features_columns] = manual_features
 
         for commit_id, label, msg, files in zip(commit_ids, labels, msgs, codes):

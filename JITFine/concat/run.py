@@ -514,7 +514,7 @@ def main(args):
             model.load_state_dict(checkpoint['model_state_dict'], strict=False)
         train_dataset = TextDataset(tokenizer, args, file_path=args.train_data_file)
 
-        for idx, example in enumerate(train_dataset.examples[:1]):
+        for idx, example in enumerate(train_dataset.examples[:5]):
             logger.info("*** Example ***")
             logger.info("idx: {}".format(idx))
             logger.info("label: {}".format(example.label))

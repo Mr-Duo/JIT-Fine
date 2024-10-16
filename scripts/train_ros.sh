@@ -17,7 +17,7 @@ for i in "${sampling[@]}"; do
             --model_name_or_path=microsoft/codebert-base \
             --tokenizer_name=microsoft/codebert-base \
             --do_train \
-            --train_data_file dataset/FFmpeg/$j/$i/$j-FFmpeg-deepjit-train.jsonl dataset/FFmpeg/$j/$i/$j-FFmpeg-features-train.jsonl \
+            --train_data_file dataset/FFmpeg/$j/$i/$j-FFmpeg-deepjit-train.jsonl dataset/FFmpeg/$j/$i/$j-FFmpeg-features-train.jsonl\
             --eval_data_file dataset/FFmpeg/$j/$j-FFmpeg-deepjit-val.jsonl dataset/FFmpeg/$j/$j-FFmpeg-features-val.jsonl\
             --test_data_file dataset/FFmpeg/$j/$j-FFmpeg-deepjit-test.jsonl dataset/FFmpeg/$j/$j-FFmpeg-features-test.jsonl\
             --epoch 50 \
