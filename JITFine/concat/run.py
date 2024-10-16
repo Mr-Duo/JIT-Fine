@@ -42,7 +42,7 @@ def train(args, train_dataset, model, tokenizer):
 
     # build dataloader
     train_sampler = RandomSampler(train_dataset)
-    train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size, num_workers=4)
+    train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size, num_workers=1)
 
     args.max_steps = args.epochs * len(train_dataloader)
     args.save_steps = len(train_dataloader) // 5
@@ -171,7 +171,7 @@ def evaluate(args, model, tokenizer, eval_when_training=False):
         with open(cache_dataset, 'wb') as f:
             pickle.dump(eval_dataset, f)
     eval_sampler = SequentialSampler(eval_dataset)
-    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size, num_workers=4)
+    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size, num_workers=1)
 
     # multi-gpu evaluate
     if args.n_gpu > 1 and eval_when_training is False:
@@ -235,7 +235,7 @@ def test(args, model, tokenizer, best_threshold=0.5):
         with open(cache_dataset, 'wb') as f:
             pickle.dump(eval_dataset, f)
     eval_sampler = SequentialSampler(eval_dataset)
-    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size, num_workers=4)
+    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size, num_workers=1)
 
     # multi-gpu evaluate
     if args.n_gpu > 1:
