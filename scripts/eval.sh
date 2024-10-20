@@ -1,6 +1,6 @@
 #!/bin/bash
 
-setup=("SETUP1" "SETUP2" "SETUP3" "SETUP4" "SETUP5")
+setup=("SETUP2" "SETUP3")
 sampling=("unsampling" "rus" "ros")
 
 # Nested loop
