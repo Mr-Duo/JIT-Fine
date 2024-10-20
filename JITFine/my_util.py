@@ -252,7 +252,7 @@ def eval_metrics(result_df):
 
 
 def load_change_metrics_df(data_dir, mode='train'):
-    change_metrics = pd.read_csv(data_dir, line=True)
+    change_metrics = pd.read_csv(data_dir, lines=True)
     feature_name = ["ns", "nd", "nf", "entropy", "la", "ld", "lt", "fix", "ndev", "age", "nuc", "exp", "rexp", "sexp"]
     change_metrics = convert_dtype_dataframe(change_metrics, feature_name)
 
