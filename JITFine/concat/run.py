@@ -226,14 +226,14 @@ def test(args, model, tokenizer, best_threshold=0.5):
     cache_dataset = args.cache_dir + f'/test_set_cache_msg{args.max_msg_length}.pkl'
     if args.no_abstraction:
         cache_dataset = cache_dataset.split('.pkl')[0] + '_raw.pkl'
-    logger.info("Cache Dataset file at %s ", cache_dataset)
-    if os.path.exists(cache_dataset):
-        with open(cache_dataset, 'rb') as f:
-            eval_dataset = pickle.load(f)
-    else:
-        eval_dataset = TextDataset(tokenizer, args, file_path=args.test_data_file, mode='test')    
-        with open(cache_dataset, 'wb') as f:
-            pickle.dump(eval_dataset, f)
+    # logger.info("Cache Dataset file at %s ", cache_dataset)
+    # if os.path.exists(cache_dataset):
+    #     with open(cache_dataset, 'rb') as f:
+    #         eval_dataset = pickle.load(f)
+    # else:
+    eval_dataset = TextDataset(tokenizer, args, file_path=args.test_data_file, mode='test')    
+        # with open(cache_dataset, 'wb') as f:
+        #     pickle.dump(eval_dataset, f)
     eval_sampler = SequentialSampler(eval_dataset)
     eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size, num_workers=4)
 
