@@ -256,7 +256,7 @@ def load_change_metrics_df(data_dir, mode='train'):
     feature_name = ["ns", "nd", "nf", "entropy", "la", "ld", "lt", "fix", "ndev", "age", "nuc", "exp", "rexp", "sexp"]
     change_metrics = convert_dtype_dataframe(change_metrics, feature_name)
 
-    return change_metrics[['commit_hash'] + feature_name]
+    return change_metrics[['commit_id'] + feature_name]
 
 
 def eval_result(result_path, features_path):
@@ -264,11 +264,11 @@ def eval_result(result_path, features_path):
 
     RF_result.columns = ['test_commit', 'defective_commit_prob', 'defective_commit_pred', 'label']  # for new result
 
-    test_commit_metrics = load_change_metrics_df(features_path, 'test')[['commit_hash', 'la', 'ld']]
+    test_commit_metrics = load_change_metrics_df(features_path, 'test')[['commit_id', 'la', 'ld']]
     RF_df = pd.DataFrame()
     RF_df['commit_id'] = RF_result['test_commit']
-    RF_df = pd.merge(RF_df, test_commit_metrics, left_on='commit_id', right_on='commit_hash', how='inner')
-    RF_df = RF_df.drop('commit_hash', axis=1)
+    RF_df = pd.merge(RF_df, test_commit_metrics, left_on='commit_id', right_on='commit_id', how='inner')
+    # RF_df = RF_df.drop('commit_hash', axis=1)
     RF_df['LOC'] = RF_df['la'] + RF_df['ld']
     RF_result = pd.merge(RF_df, RF_result, how='inner', left_on='commit_id', right_on='test_commit')
     f1, auc, recall_20_percent_effort, effort_at_20_percent_LOC_recall, p_opt = eval_metrics(
