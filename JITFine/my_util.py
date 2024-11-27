@@ -65,6 +65,7 @@ def convert_examples_to_features(item, cls_token='[CLS]', sep_token='[SEP]', seq
     label = int(label)
     added_tokens = []
     removed_tokens = []
+    msg = msg.encode('utf-8', 'ignore').decode('utf-8')
     msg_tokens = tokenizer.tokenize(msg)
     msg_tokens = msg_tokens[:min(args.max_msg_length, len(msg_tokens))]
     # # for file_codes in files:
