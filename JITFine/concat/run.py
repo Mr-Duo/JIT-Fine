@@ -17,7 +17,7 @@ from torch.utils.data.distributed import DistributedSampler
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer, RobertaModel)
 from sklearn.metrics import (
-    f1_score, precision_score, recall_score
+    f1_score, precision_score, recall_score, precision_recall_curve, auc
 )
 
 from tqdm import tqdm, trange
@@ -129,10 +129,10 @@ def train(args, train_dataset, model, tokenizer):
                 logger.info("Saving epoch %d step %d model checkpoint to %s, patience %d", idx, global_step, output_dir,
                             patience)
                 # Save model checkpoint
-                if results['eval_f1'] > best_f1:
-                    best_f1 = results['eval_f1']
+                if results['eval_pr_auc'] > best_f1:
+                    best_f1 = results['eval_pr_auc']
                     logger.info("  " + "*" * 20)
-                    logger.info("  Best f1:%s", round(best_f1, 4))
+                    logger.info("  Best pr_auc:%s", round(best_f1, 4))
                     logger.info("  " + "*" * 20)
 
                     checkpoint_prefix = 'checkpoint-best-f1'
@@ -207,11 +207,14 @@ def evaluate(args, model, tokenizer, eval_when_training=False):
     recall = recall_score(y_trues, y_preds, average='binary')
     precision = precision_score(y_trues, y_preds, average='binary')
     f1 = f1_score(y_trues, y_preds, average='binary')
+    pr, rc, _ = precision_recall_curve(y_trues, logits[:, -1])
+    pr_auc = auc(rc, pr)
     result = {
         "eval_recall": float(recall),
         "eval_precision": float(precision),
         "eval_f1": float(f1),
         "eval_threshold": best_threshold,
+        "eval_pr_auc": pr_auc,
     }
 
     logger.info("***** Eval results *****")
