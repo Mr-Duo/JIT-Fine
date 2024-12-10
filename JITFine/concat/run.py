@@ -496,7 +496,9 @@ def main(args):
     config.num_labels = args.num_labels
     config.feature_size = args.feature_size
     config.hidden_dropout_prob = args.head_dropout_prob
-    tokenizer = RobertaTokenizer.from_pretrained(args.tokenizer_name)
+
+    # tokenizer = RobertaTokenizer.from_pretrained(args.tokenizer_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_root_path)
     special_tokens_dict = {'additional_special_tokens': ["[ADD]", "[DEL]"]}
     tokenizer.add_special_tokens(special_tokens_dict)
 
