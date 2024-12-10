@@ -322,7 +322,8 @@ def test(args, model, tokenizer, best_threshold=0.5):
     #         round(np.mean(effort_at_20_percent_LOC_recall), 4), round(np.mean(IFA), 4))
     # )
     RF_result = pd.DataFrame(result)
-    RF_result.to_csv(os.path.join(args.output_dir, "predictions.csv"), sep='\t', index=None)
+    RF_columns = ["commit_hash", "proba", "pred", "label"]
+    RF_result.to_csv(os.path.join(args.output_dir, "predictions.csv"), index=None)
 
 
 def commit_with_codes(filepath, tokenizer):
