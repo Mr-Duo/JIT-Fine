@@ -9,10 +9,11 @@ echo "Nested loop processing:"
 for i in "${sampling[@]}"; do
     for j in "${setup[@]}"; do    
         echo "Train $k $j with $i"
-        mkdir -p $j/$i/dg_cache/save/$project/jitfine/checkpoints
+        mkdir -p PDBert/$j/$i/dg_cache/save/$project/jitfine/checkpoints
 
         python -m JITFine.concat.run \
-            --output_dir=$j/$i/dg_cache/save/$project/jitfine/checkpoints \
+            --output_dir=PDBert/$j/$i/dg_cache/save/$project/jitfine/checkpoints \
+            --cache_dir=PDBert/$j/$i/dg_cache/save/$project/jitfine/checkpoints \
             --model_name_or_path=../pretrain/PDBert/data/models/pdbert-base \
             --do_train \
             --train_data_file dataset/$project/$j/$i/$j-$project-deepjit-train.jsonl dataset/$project/$j/$i/$j-$project-features-train.jsonl \
@@ -34,7 +35,8 @@ for i in "${sampling[@]}"; do
 
 
         python -m JITFine.concat.run \
-            --output_dir=$j/$i/dg_cache/save/$project/jitfine/checkpoints \
+            --output_dir=PDBert/$j/$i/dg_cache/save/$project/jitfine/checkpoints \
+            --cache_dir=PDBert/$j/$i/dg_cache/save/$project/jitfine/checkpoints \
             --model_name_or_path=../pretrain/PDBert/data/models/pdbert-base \
             --do_test \
             --train_data_file dataset/$project/$j/$i/$j-$project-deepjit-train.jsonl dataset/$project/$j/$i/$j-$project-features-train.jsonl \
