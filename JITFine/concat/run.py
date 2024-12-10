@@ -15,7 +15,8 @@ import torch
 from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler, TensorDataset
 from torch.utils.data.distributed import DistributedSampler
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
-                          RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer, RobertaModel)
+                          RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer, RobertaModel,
+                          AutoModel, AutoTokenizer, AutoConfig)
 from sklearn.metrics import (
     f1_score, precision_score, recall_score, precision_recall_curve, auc
 )
@@ -488,16 +489,25 @@ def main(args):
     # Set seed
 
     set_seed(args)
-    config = RobertaConfig.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
-    config.num_labels = args.num_labels
-    config.feature_size = args.feature_size
-    config.hidden_dropout_prob = args.head_dropout_prob
-    tokenizer = RobertaTokenizer.from_pretrained(args.tokenizer_name)
+    # config = RobertaConfig.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
+    # config.num_labels = args.num_labels
+    # config.feature_size = args.feature_size
+    # config.hidden_dropout_prob = args.head_dropout_prob
+    # tokenizer = RobertaTokenizer.from_pretrained(args.tokenizer_name)
+    # special_tokens_dict = {'additional_special_tokens': ["[ADD]", "[DEL]"]}
+    # tokenizer.add_special_tokens(special_tokens_dict)
+
+    # model = RobertaModel.from_pretrained(args.model_name_or_path, config=config)
+    
+    model_root_path = args.model_name_or_path     # root of model package
+    #
+    config = AutoConfig.from_pretrained(model_root_path)
+    # Init tokenizer and model
+    tokenizer = AutoTokenizer.from_pretrained(model_root_path)
     special_tokens_dict = {'additional_special_tokens': ["[ADD]", "[DEL]"]}
     tokenizer.add_special_tokens(special_tokens_dict)
-
-    model = RobertaModel.from_pretrained(args.model_name_or_path, config=config)
-
+    
+    model = AutoModel.from_pretrained(model_root_path, config=config)
     model.resize_token_embeddings(len(tokenizer))
     logger.info("Training/evaluation parameters %s", args)
 
