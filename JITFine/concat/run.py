@@ -490,25 +490,20 @@ def main(args):
 
     set_seed(args)
     # config = RobertaConfig.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
-    # config.num_labels = args.num_labels
-    # config.feature_size = args.feature_size
-    # config.hidden_dropout_prob = args.head_dropout_prob
-    # tokenizer = RobertaTokenizer.from_pretrained(args.tokenizer_name)
-    # special_tokens_dict = {'additional_special_tokens': ["[ADD]", "[DEL]"]}
-    # tokenizer.add_special_tokens(special_tokens_dict)
-
-    # model = RobertaModel.from_pretrained(args.model_name_or_path, config=config)
-    
     model_root_path = args.model_name_or_path     # root of model package
-    #
     config = AutoConfig.from_pretrained(model_root_path)
-    # Init tokenizer and model
-    tokenizer = AutoTokenizer.from_pretrained(model_root_path)
+     
+    config.num_labels = args.num_labels
+    config.feature_size = args.feature_size
+    config.hidden_dropout_prob = args.head_dropout_prob
+    tokenizer = RobertaTokenizer.from_pretrained(args.tokenizer_name)
     special_tokens_dict = {'additional_special_tokens': ["[ADD]", "[DEL]"]}
     tokenizer.add_special_tokens(special_tokens_dict)
-    
+
+    # model = RobertaModel.from_pretrained(args.model_name_or_path, config=config)    
     model = AutoModel.from_pretrained(model_root_path, config=config)
     model.resize_token_embeddings(len(tokenizer))
+    
     logger.info("Training/evaluation parameters %s", args)
 
     model = Model(model, config, tokenizer, args)

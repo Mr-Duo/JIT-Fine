@@ -29,7 +29,7 @@ for i in "${sampling[@]}"; do
             --evaluate_during_training \
             --feature_size 14 \
             --patience 10 \
-            --seed 42 2>&1| tee $j/$i/dg_cache/save/$project/jitfine/train.log \
+            --seed 42 2>&1| tee PDBert/$j/$i/dg_cache/save/$project/jitfine/train.log \
             # --config_name=microsoft/codebert-base \
             # --tokenizer_name=microsoft/codebert-base \
 
@@ -52,7 +52,7 @@ for i in "${sampling[@]}"; do
             --evaluate_during_training \
             --only_adds \
             --buggy_line_filepath=$j/$i/dg_cache/save/$project/jitfine/changes_complete_buggy_line_level.pkl \
-            --seed 42 2>&1 | tee $j/$i/dg_cache/save/$project/jitfine/test.log \
+            --seed 42 2>&1 | tee PDBert/$j/$i/dg_cache/save/$project/jitfine/test.log \
             # --config_name=microsoft/codebert-base \
             # --tokenizer_name=microsoft/codebert-base \
     done
